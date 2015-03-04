@@ -1,30 +1,34 @@
-
 <?php
 if ($this->params['controller'] == 'clients') {
 	$client_class = 'active';
 } else {
 	$client_class = '';
 }
+
 if ($this->params['controller'] == 'staffs') {
 	$staffs_class = 'active';
 } else {
 	$staffs_class = '';
 }
+
 if ($this->params['controller'] == 'uploads') {
 	$uploads_class = 'active';
 } else {
 	$uploads_class = '';
 }
+
 if ($this->params['controller'] == 'departments') {
 	$departments_class = 'active';
 } else {
 	$departments_class = '';
 }
+
 if(strtolower($this->params['controller']) == 'managefolders'){
 	$manage_folder = 'active';
 }else{
 	$manage_folder = '';
 }
+
 if ($this->params['controller'] == 'users' && $this->params['action'] == 'admin_reset_password') {
 	$rep_class = 'active';
 } else {
@@ -73,10 +77,18 @@ if ($this->params['controller'] == 'users' && $this->params['action'] == 'admin_
 		</a>
 		<ul class="sub">
 			<li><?php echo $this->Html->link(__('Inbox'), array('controller' => 'uploads', 'action' => 'inbox')); ?> </li>
-			
 			<li><?php echo $this->Html->link(__('Drafts'), array('controller' => 'uploads', 'action' => 'draft')); ?> </li>
 			<li><?php echo $this->Html->link(__('Sent'), array('controller' => 'uploads', 'action' => 'sent')); ?> </li>
 			<li><?php echo $this->Html->link(__('Compose'), array('controller' => 'uploads', 'action' => 'add')); ?> </li>
+			<?php
+			if(isset($_folders) && is_array($_folders) && count($_folders)) {
+				foreach($_folders as $_folder) {
+				?>
+				<li><?php echo $this->Html->link(ucwords(strtolower($_folder['ManageFolder']['Name'])), array('controller' => 'uploads', 'action' => 'folder/'.$_folder['ManageFolder']['id'], 'admin' => true)); ?> </li>
+				<?php
+				}
+			}
+			?>
 		</ul>
 	</li>
 	<li class="sub-menu">

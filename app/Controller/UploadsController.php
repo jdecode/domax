@@ -5,6 +5,7 @@ App::uses('User', 'Model');
 App::uses('Client', 'Model');
 App::uses('Document', 'Model');
 App::uses('Message', 'Model');
+App::uses('ManageFolder', 'Model');
 
 /**
  * Uploads Controller
@@ -46,7 +47,7 @@ class UploadsController extends AppController {
 	 * @return void
 	 */
 	public function admin_index() {
-		
+
 		$this->Upload->recursive = 0;
 
 		$con = array(1 => 1);
@@ -81,7 +82,7 @@ class UploadsController extends AppController {
 	 * @return void
 	 */
 	public function admin_view($id = null) {
-		
+
 		$this->Upload->id = $id;
 		if (!$this->Upload->exists()) {
 			throw new NotFoundException(__('Invalid upload'));
@@ -96,69 +97,73 @@ class UploadsController extends AppController {
 	 *
 	 * @return void
 	 */
-	public function admin_add() {
+	public function admin_add($folder_id = 0) {
 		if ($this->request->is('post')) {
 			//pr($this->request->data); die;
-			if ($this->request->data['Upload']['filename']['error'] == '0' && is_array($this->request->data['Upload']['filetouser']) && count($this->request->data['Upload']['filetouser'])) {
+			if ($this->request->data['Upload']['filename']['error'] == '0') {
 				$tmp_name = $this->request->data['Upload']['filename']['tmp_name'];
-				
+
 				$_ext = explode('.', $this->request->data['Upload']['filename']['name']);
-				$ext = $_ext[count($_ext)-1];
-				$file_name = sha1(time().microtime().rand()).'.'.$ext;
-				
-				
-				
+				$ext = $_ext[count($_ext) - 1];
+				$file_name = sha1(time() . microtime() . rand()) . '.' . $ext;
+
 				$movable = false;
 				$destination = WWW_ROOT . 'files/uploads/';
 				if (!is_dir($destination)) {
-					if(!mkdir($destination)) {
+					if (!mkdir($destination)) {
 						$this->Session->setFlash('Could not create appropriate folder', "Error");
 					}
 				}
-				if(is_writable($destination)) {
+				if (is_writable($destination)) {
 					$movable = true;
 				} else {
 					$this->Session->setFlash('Destination directory not writable', "Error");
 				}
-				if($movable) {
-					if(move_uploaded_file($tmp_name, $destination . $file_name)) {
+				if ($movable) {
+					if (move_uploaded_file($tmp_name, $destination . $file_name)) {
 						$this->Document = new Document();
 						$document = array('Document' => array());
 						$document['Document']['name'] = $this->request->data['Upload']['filename']['name'];
 						$document['Document']['filename'] = $file_name;
-						if($this->Document->save($document)) {
+						if ($this->Document->save($document)) {
 							$_insert_id = $this->Document->getLastInsertID();
 
 							$message = array(
 								'Message' => array(
 									'status' => 0,
 									'document_id' => $_insert_id,
-									'folder_id' => 0,
+									'folder_id' => $folder_id,
 									'message' => $this->request->data['Upload']['description'],
 									'user_id' => $this->_admin_data['id'],
-									)
-								);
+								)
+							);
 							$this->Message = new Message();
-							foreach ($this->request->data['Upload']['filetouser'] as $filetouser) {
-								$this->Message->create();
-								$message['Message']['user2id'] = $filetouser;
+							if (isset($this->request->data['Upload']['filetouser']) && is_array($this->request->data['Upload']['filetouser']) && count($this->request->data['Upload']['filetouser'])) {
+								foreach ($this->request->data['Upload']['filetouser'] as $filetouser) {
+									$this->Message->create();
+									$message['Message']['user2id'] = $filetouser;
+									$this->Message->save($message);
+								}
+							} else {
+								$message['Message']['status'] = 4;
 								$this->Message->save($message);
 							}
 						} else {
-							$this->Session->setFlash('File could not be saved. Please try again', "Error");
+							$this->Session->setFlash('File could not be saved. Please try again');
 						}
 					} else {
-						$this->Session->setFlash('File could not be uploaded. Please try again', "Error");
+						$this->Session->setFlash('File could not be uploaded. Please try again');
 					}
 				} else {
-					$this->Session->setFlash('Could not upload file due to folder permissions.', "Error");
+					$this->Session->setFlash('Could not upload file due to folder permissions.');
 				}
 				$this->redirect(array('action' => 'inbox'));
 			} else {
-				$this->Session->setFlash('Please make sure required options are selected', "Error");
+				$this->Session->setFlash('Please make sure required options are selected');
 			}
 			die;
 		}
+		$this->set('_folder_id', $folder_id);
 	}
 
 	/**
@@ -167,8 +172,8 @@ class UploadsController extends AppController {
 	 * @param string $id
 	 * @return void
 	 */
-	public function admin_edit($id = null){
-		
+	public function admin_edit($id = null) {
+
 		$this->Upload->id = $id;
 		if (!$this->Upload->exists()) {
 			throw new NotFoundException(__('Invalid upload'));
@@ -288,8 +293,8 @@ class UploadsController extends AppController {
 		}
 	}
 
-	public function admin_draft($label = null) {
-		
+	public function admin_draft2($label = null) {
+
 
 		if ($label == null && $label == '') {
 			$label = 0;
@@ -307,8 +312,8 @@ class UploadsController extends AppController {
 		$this->set("draft_data", $_draft_data);
 	}
 
-	public function admin_sent() {
-		
+	public function admin_sent2() {
+
 		$this->loadModel('SentUpload');
 		$_current_login_user = $this->Session->read('Auth.User.id');
 		$_sent_data = $this->SentUpload->find(
@@ -324,19 +329,97 @@ class UploadsController extends AppController {
 	}
 
 	public function admin_inbox() {
+		$this->_admin_list(0);
+	}
+
+	public function admin_sent() {
+		$this->_admin_list(5);
+	}
+
+	public function admin_draft() {
+		$this->_admin_list(4);
+	}
+
+	public function admin_folder($id) {
+		$this->_admin_list($id, true);
+	}
+
+	public function _admin_list($status = 0, $folder = false) {
 		$this->User = new User();
 		$this->Message = new Message();
 		$_current_login_user = $this->_admin_data['id'];
-		$_sent_data = $this->Message->find(
-				"all", array(
-			"conditions" => array("Message.user2id" => $_current_login_user, 'Message.status' => 0),
-			"order" => array("Message.id DESC")
-				)
-		);
+		$_label = '';
+		if (!$folder) {
+			switch ($status) {
+				case 0:
+					$this->set('uploads', $this->paginate('Message', array("Message.user2id" => $_current_login_user, 'Message.status' => 0)));
+					$_messages = $this->Message->find(
+							"all", array(
+						"conditions" => array("Message.user2id" => $_current_login_user, 'Message.status' => 0),
+						"order" => array("Message.id DESC")
+							)
+					);
+					$_label = 'Inbox';
+					break;
+				case 4:
+					$this->set('uploads', $this->paginate('Message', array("Message.user_id" => $_current_login_user, 'Message.status' => 4)));
+					$_messages = $this->Message->find(
+							"all", array(
+						"conditions" => array("Message.user_id" => $_current_login_user, 'Message.status' => 4),
+						"order" => array("Message.id DESC")
+							)
+					);
+					$_label = 'Drafts';
+					break;
+				case 5:
+					$this->set('uploads', $this->paginate('Message', array("Message.user_id" => $_current_login_user, 'Message.status' => 0)));
+					$_messages = $this->Message->find(
+							"all", array(
+						"conditions" => array("Message.user_id" => $_current_login_user, 'Message.status' => 0),
+						"order" => array("Message.id DESC")
+							)
+					);
+					$_label = 'Sent';
+					break;
+				default :
+					$this->set('uploads', $this->paginate('Message', array("Message.user_id" => $_current_login_user, 'Message.status' => 0)));
+					$_messages = $this->Message->find(
+							"all", array(
+						"conditions" => array("Message.user_id" => $_current_login_user, 'Message.status' => 0),
+						"order" => array("Message.id DESC")
+							)
+					);
+					$_label = 'Inbox';
+					break;
+			}
+			$this->set('folder_id', 0);
+		} else {
+			$this->set(
+					'uploads',
+					$this->paginate(
+							'Message',
+							array(
+								"Message.user_id" => $_current_login_user,
+								'Message.status' => 0,
+								'Message.folder_id' => $status
+							)
+					)
+			);
+			$_messages = $this->Message->find(
+					"all", array(
+				"conditions" => array("Message.user_id" => $_current_login_user, 'Message.status' => 0, 'Message.folder_id' => $status),
+				"order" => array("Message.id DESC")
+					)
+			);
+			$this->ManageFolder = new ManageFolder();
+			$folder = $this->ManageFolder->read(null, $status);
+			$_label = ucwords(strtolower($folder['ManageFolder']['Name']));
+			$this->set('folder_id', $status);
+		}
 		$this->Paginator->settings = $this->paginate;
-		$this->set('uploads', $this->paginate('Message'));
 		$this->set('users', $this->User->find('list', array('fields' => array('username'))));
-		$this->set("sent_data", $_sent_data);
+		$this->set("messages", $_messages);
+		$this->set("_label", $_label);
 	}
 
 }

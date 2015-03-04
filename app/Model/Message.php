@@ -92,6 +92,13 @@ class Message extends AppModel {
 			'fields' => '',
 			'order' => ''
 		),
+		'Receiver' => array(
+			'className' => 'User',
+			'foreignKey' => 'user2id',
+			'conditions' => '',
+			'fields' => '',
+			'order' => ''
+		),
 		'Document' => array(
 			'className' => 'Document',
 			'foreignKey' => 'document_id',

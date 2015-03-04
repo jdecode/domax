@@ -21,6 +21,7 @@
  * @license       MIT License (http://www.opensource.org/licenses/mit-license.php)
  */
 App::uses('Controller', 'Controller');
+App::uses('ManageFolder', 'Model');
 
 /**
  * This is a placeholder class.
@@ -62,6 +63,20 @@ class AppController extends Controller {
 		} else {
 			$this->set('_is_admin', 0);
 		}
+		
+		/**
+		 * Load Folders
+		 */
+		$this->ManageFolder = new ManageFolder();
+		$_folders = $this->ManageFolder->find(
+				'all', array(
+					'conditions' => array(
+						'ManageFolder.status' => 1,
+						'ManageFolder.user_id !=' => 0
+						)
+					)
+				);
+		$this->set('_folders', $_folders);
 	}
 
 	/**
