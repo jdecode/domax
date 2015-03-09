@@ -14,7 +14,8 @@
 			"/assets/css/bootstrap.css",
 			"/assets/font-awesome/css/font-awesome.css",
 			"/assets/css/style.css",
-			"/assets/css/style-responsive.css"
+			"/assets/css/style-responsive.css",
+			"/assets/css/custom.css"
 		))
 		?>
 		<script src="http://code.jquery.com/jquery-1.11.2.min.js"></script>
@@ -45,7 +46,7 @@
 					<div class="fa fa-bars tooltips" data-placement="right" data-original-title="Toggle Navigation"></div>
 				</div>
 				<!--logo start-->
-				<a href="index.html" class="logo"><b>Himsoftsolution.com</b></a>
+				<a href="<?php echo $this->webroot.'' ?>" class="logo"><b>E-DOCUMENT MANAGEMENT SYSTEM</b></a>
 				<!--logo end-->
 
 				<div class="top-menu">
@@ -68,7 +69,7 @@
 			<aside>
 				<div id="sidebar"  class="nav-collapse ">
 					<!-- sidebar menu start-->
-					<?php echo $this->element("sidebar"); ?>
+					<?php echo $this->element("staff-sidebar"); ?>
 					<!-- sidebar menu end-->
 				</div>
 			</aside>

@@ -13,7 +13,7 @@
 					array(
 						"controller" => "uploads",
 						"action" => "add/".$_add_id,
-						"admin" => true
+						"admin" => false
 					),
 					array(
 						"escape" => false,
@@ -53,12 +53,11 @@
 					foreach ($messages as $message):
 						?>
 						<tr>
-
 							<td><?php echo h($message['Message']['id']); ?>&nbsp;</td>
 							<td>
 								<?php echo $this->Html->link($message['Receiver']['username'], array('controller' => 'users', 'action' => 'view', $message['User']['id'])); ?>
 							</td>
-							<td><?php echo $this->Html->link($message['Document']['name'], '/app/webroot/files/uploads/' . $message['Document']['filename']); ?>&nbsp;</td>
+							<td><?php echo $this->Html->link('<span class="btn btn-primary">Download</span>', '/app/webroot/files/uploads/' . $message['Document']['filename'], array('escape' => false, 'target' => '_blank')); ?>&nbsp;</td>
 							<td>&nbsp;<?php //echo $this->Html->link($users[$message['InboxUpload']['sent_from']], array('controller' => 'users', 'action' => 'view', $message['SentUpload']['sent_from']));  ?>&nbsp;</td>
 							<td><?php echo date('F d, Y H:i', $message['Message']['created']); ?>&nbsp;</td>
 							<td class="actions">

@@ -32,6 +32,7 @@ class UsersController extends AppController {
 			),
 			'user' => array(
 				'dashboard',
+				'changepassword',
 				'logout',
 			)
 		);
@@ -57,14 +58,15 @@ class UsersController extends AppController {
 	 * @return void
 	 */
 	public function admin_view($id = null) {
-		$this->layout = 'admin';
+		//$this->layout = 'admin';
 		$this->User->id = $id;
 		if (!$this->User->exists()) {
 			throw new NotFoundException(__('Invalid user'));
-		}
+		}else{
 		$this->set('user', $this->User->read(null, $id));
-
+		$this->loadModel('Upload');
 		$this->set('upload', $this->Upload->find('all', array('conditions' => array('user_id' => $this->User->id))));
+		}
 	}
 
 	/**
@@ -166,6 +168,7 @@ class UsersController extends AppController {
 	public function dashboard() {
 		$this->layout = 'dashboard';
 		$this->recursive = '0';
+		$this->redirect('/uploads/inbox');
 		//$this->set('file', $this->Upload->find('all', array('conditions' => array('Upload.user_id' => $this->Auth->user('id')))));
 	}
 
@@ -322,9 +325,8 @@ class UsersController extends AppController {
 	}
 
 	public function changepassword() {
-		$this->layout = 'home';
 		if ($this->request->is('post') || $this->request->is('put')) {
-			$this->User->id = $this->Auth->user('id');
+			$this->User->id = $this->_user_data['id'];
 			$this->User->recursive = -1;
 			$password = $this->User->find('first', array('conditions' => array('User.id' => $this->User->id)));
 			//debug($password);
@@ -334,18 +336,18 @@ class UsersController extends AppController {
 			} else if (empty($this->request->data['User']['new_password'])) {
 				$this->Session->setFlash("Please Enter your New Password");
 				$this->redirect(array('controller' => 'Users', 'action' => 'changepassword'));
-			} else if (AuthComponent::password($this->request->data['User']['old_password']) != $password['User']['password']) {
+			} else if (sha1($this->request->data['User']['old_password']) != $password['User']['password']) {
 				//debug(AuthComponent::password($this->request->data['User']['old_password'])); exit;
 				$this->Session->setFlash("Your old password did not matched.");
 				$this->redirect(array('controller' => 'Users', 'action' => 'changepassword'));
-			} else if ($this->request->data['User']['new_password'] != $this->request->data['User']['new_password']) {
-				$this->Session->setFlash("Confirmed Password mismatch.");
+			} else if ($this->request->data['User']['new_password'] != $this->request->data['User']['conf_password']) {
+				$this->Session->setFlash("Confirm Password mismatch.");
 				$this->redirect(array('controller' => 'Users', 'action' => 'changepassword'));
 			} else {
-				$this->request->data['User']['password'] = $this->request->data['User']['new_password'];
-				$this->User->save($this->request->data);
+				$password['User']['password'] = $this->request->data['User']['new_password'];
+				$this->User->save($password);
 				$this->Session->setFlash("Password Changed successfully.");
-				$this->redirect(array('controller' => 'Users', 'action' => 'client'));
+				$this->redirect('/');
 			}
 		}
 	}

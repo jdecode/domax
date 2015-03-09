@@ -45,7 +45,7 @@
 					<div class="fa fa-bars tooltips" data-placement="right" data-original-title="Toggle Navigation"></div>
 				</div>
 				<!--logo start-->
-				<a href="index.html" class="logo"><b>Himsoftsolution.com</b></a>
+				<a href="<?php echo $this->webroot.'admin' ?>" class="logo"><b>E-DOCUMENT MANAGEMENT SYSTEM</b></a>
 				<!--logo end-->
 
 				<div class="top-menu">

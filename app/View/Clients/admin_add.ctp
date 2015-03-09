@@ -86,14 +86,14 @@
 		<div class="form-group">
 			<label class="col-sm-3 col-sm-3 control-label">File No</label>
 			<div class="col-sm-9">
-				<?php echo $this->Form->input('fileno', array('label' => '', "class" => "form-control")); ?>
+				<?php echo $this->Form->input('fileno', array('label' => '', "class" => "form-control","required"=>false)); ?>
 			</div>
 		</div>
 
 		<div class="form-group">
 			<label class="col-sm-3 col-sm-3 control-label">Pan card</label>
 			<div class="col-sm-9">
-				<?php echo $this->Form->input('pancard', array('label' => '', "class" => "form-control")); ?>
+				<?php echo $this->Form->input('pancard', array('label' => '', "class" => "form-control","required"=>false)); ?>
 			</div>
 		</div>
 		<div class="form-group">

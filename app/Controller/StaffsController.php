@@ -88,6 +88,8 @@ class StaffsController extends AppController {
 			throw new NotFoundException(__('Invalid staff'));
 		}
 		$this->set('staff', $this->Staff->read(null, $id));
+
+		$this->loadModel('Department');
 		$this->set('depart', $this->Department->find('list', array('fields' => array('name'))));
 	}
 
@@ -142,6 +144,7 @@ class StaffsController extends AppController {
 		}
 		$users = $this->Staff->User->find('list');
 		$this->set(compact('users'));
+		$this->loadModel('Department');
 		$this->set('select', $this->Department->find('list', array('fields' => array('name'))));
 	}
 

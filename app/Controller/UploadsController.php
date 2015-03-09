@@ -32,9 +32,15 @@ class UploadsController extends AppController {
 				'admin_delete',
 				'admin_ajax',
 				'admin_delete1',
+				'admin_folder',
 			),
 			'user' => array(
 				'dashboard',
+				'add',
+				'inbox',
+				'sent',
+				'draft',
+				'folder',
 				'logout',
 			)
 		);
@@ -93,7 +99,7 @@ class UploadsController extends AppController {
 	}
 
 	/**
-	 * add method
+	 * admin_add method
 	 *
 	 * @return void
 	 */
@@ -260,6 +266,24 @@ class UploadsController extends AppController {
 		}
 	}
 
+	public function ajax() {
+		if ($this->RequestHandler->isAjax()) {
+			$this->Client = new Client();
+			if ($_POST['action_id'] == '1') {
+				$this->set('option', $this->Client->find('list', array('fields' => array('user_id', 'name'))));
+			} else if ($_POST['action_id'] == '2') {
+				$this->set('option2', $this->Client->find('list', array('fields' => array('user_id', 'fileno'))));
+			} else if ($_POST['action_id'] == '3') {
+				$this->set('option3', $this->Client->find('list', array('fields' => array('user_id', 'pancard'))));
+			} else if ($_POST['action_id'] == '4') {
+				$this->set('option4', $this->Client->find('list', array('fields' => array('user_id', 'bussiness_name'))));
+			} else {
+				$this->loadModel('Staff');
+				$this->set('option5', $this->Staff->find('list', array('fields' => array('user_id', 'name'))));
+			}
+		}
+	}
+
 	public function search() {
 		error_reporting('0');
 		$this->layout = '';
@@ -344,10 +368,14 @@ class UploadsController extends AppController {
 		$this->_admin_list($id, true);
 	}
 
-	public function _admin_list($status = 0, $folder = false) {
+	public function _admin_list($status = 0, $folder = false, $admin = 1) {
 		$this->User = new User();
 		$this->Message = new Message();
-		$_current_login_user = $this->_admin_data['id'];
+		if($admin) {
+			$_current_login_user = $this->_admin_data['id'];
+		} else {
+			$_current_login_user = $this->_user_data['id'];
+		}
 		$_label = '';
 		if (!$folder) {
 			switch ($status) {
@@ -395,13 +423,11 @@ class UploadsController extends AppController {
 			$this->set('folder_id', 0);
 		} else {
 			$this->set(
-					'uploads',
-					$this->paginate(
-							'Message',
-							array(
-								"Message.user_id" => $_current_login_user,
-								'Message.status' => 0,
-								'Message.folder_id' => $status
+					'uploads', $this->paginate(
+							'Message', array(
+						"Message.user_id" => $_current_login_user,
+						'Message.status' => 0,
+						'Message.folder_id' => $status
 							)
 					)
 			);
@@ -421,5 +447,100 @@ class UploadsController extends AppController {
 		$this->set("messages", $_messages);
 		$this->set("_label", $_label);
 	}
+
+	function inbox() {
+		$this->_admin_list(0, 0, 0);
+	}
+
+	public function sent() {
+		$this->_admin_list(5, 0, 0);
+	}
+
+	public function draft() {
+		$this->_admin_list(4, 0, 0);
+	}
+
+	public function folder($id) {
+		$this->_admin_list($id, true, 0);
+	}
+
+	/**
+	 * add method
+	 *
+	 * @return void
+	 */
+	public function add($folder_id = 0) {
+		if ($this->request->is('post')) {
+			//pr($this->request->data); die;
+			if ($this->request->data['Upload']['filename']['error'] == '0') {
+				$tmp_name = $this->request->data['Upload']['filename']['tmp_name'];
+
+				$_ext = explode('.', $this->request->data['Upload']['filename']['name']);
+				$ext = $_ext[count($_ext) - 1];
+				$file_name = sha1(time() . microtime() . rand()) . '.' . $ext;
+
+				$movable = false;
+				$destination = WWW_ROOT . 'files/uploads/';
+				if (!is_dir($destination)) {
+					if (!mkdir($destination)) {
+						$this->Session->setFlash('Could not create appropriate folder', "Error");
+					}
+				}
+				if (is_writable($destination)) {
+					$movable = true;
+				} else {
+					$this->Session->setFlash('Destination directory not writable', "Error");
+				}
+				if ($movable) {
+					if (move_uploaded_file($tmp_name, $destination . $file_name)) {
+						$this->Document = new Document();
+						$document = array('Document' => array());
+						$document['Document']['name'] = $this->request->data['Upload']['filename']['name'];
+						$document['Document']['filename'] = $file_name;
+						if ($this->Document->save($document)) {
+							$_insert_id = $this->Document->getLastInsertID();
+
+							$message = array(
+								'Message' => array(
+									'status' => 0,
+									'document_id' => $_insert_id,
+									'folder_id' => $folder_id,
+									'message' => $this->request->data['Upload']['description'],
+									'user_id' => $this->_user_data['id'],
+								)
+							);
+							$this->Message = new Message();
+							if (isset($this->request->data['Upload']['filetouser']) && is_array($this->request->data['Upload']['filetouser']) && count($this->request->data['Upload']['filetouser'])) {
+								foreach ($this->request->data['Upload']['filetouser'] as $filetouser) {
+									$this->Message->create();
+									$message['Message']['user2id'] = $filetouser;
+									$this->Message->save($message);
+								}
+							} else {
+								$message['Message']['status'] = 4;
+								$this->Message->save($message);
+							}
+						} else {
+							$this->Session->setFlash('File could not be saved. Please try again');
+						}
+					} else {
+						$this->Session->setFlash('File could not be uploaded. Please try again');
+					}
+				} else {
+					$this->Session->setFlash('Could not upload file due to folder permissions.');
+				}
+				if($folder_id) {
+					$this->redirect('/uploads/folder/'.$folder_id);
+				} else {
+					$this->redirect(array('action' => 'inbox'));
+				}
+			} else {
+				$this->Session->setFlash('Please make sure required options are selected');
+			}
+			die;
+		}
+		$this->set('_folder_id', $folder_id);
+	}
+
 
 }

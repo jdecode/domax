@@ -76,8 +76,8 @@ if ($this->params['controller'] == 'users' && $this->params['action'] == 'admin_
 			<span>Uploads</span>
 		</a>
 		<ul class="sub">
-			<li><?php echo $this->Html->link(__('Inbox'), array('controller' => 'uploads', 'action' => 'inbox')); ?> </li>
-			<li><?php echo $this->Html->link(__('Drafts'), array('controller' => 'uploads', 'action' => 'draft')); ?> </li>
+			<li><?php echo $this->Html->link(__('Received'), array('controller' => 'uploads', 'action' => 'inbox')); ?> </li>
+			<li><?php echo $this->Html->link(__('Uploaded'), array('controller' => 'uploads', 'action' => 'draft')); ?> </li>
 			<li><?php echo $this->Html->link(__('Sent'), array('controller' => 'uploads', 'action' => 'sent')); ?> </li>
 			<li><?php echo $this->Html->link(__('Compose'), array('controller' => 'uploads', 'action' => 'add')); ?> </li>
 			<?php
