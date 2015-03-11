@@ -42,7 +42,16 @@ class UploadsController extends AppController {
 				'draft',
 				'folder',
 				'logout',
-			)
+			),
+			'client' => array(
+				'client_dashboard',
+				'client_add',
+				'client_inbox',
+				'client_sent',
+				'client_draft',
+				'client_folder',
+				'client_logout',
+			),
 		);
 		$this->_deny_url($this->_deny);
 	}
@@ -284,6 +293,25 @@ class UploadsController extends AppController {
 		}
 	}
 
+
+	public function client_ajax() {
+		if ($this->RequestHandler->isAjax()) {
+			$this->Client = new Client();
+			if ($_POST['action_id'] == '1') {
+				$this->set('option', $this->Client->find('list', array('fields' => array('user_id', 'name'))));
+			} else if ($_POST['action_id'] == '2') {
+				$this->set('option2', $this->Client->find('list', array('fields' => array('user_id', 'fileno'))));
+			} else if ($_POST['action_id'] == '3') {
+				$this->set('option3', $this->Client->find('list', array('fields' => array('user_id', 'pancard'))));
+			} else if ($_POST['action_id'] == '4') {
+				$this->set('option4', $this->Client->find('list', array('fields' => array('user_id', 'bussiness_name'))));
+			} else {
+				$this->loadModel('Staff');
+				$this->set('option5', $this->Staff->find('list', array('fields' => array('user_id', 'name'))));
+			}
+		}
+	}
+
 	public function search() {
 		error_reporting('0');
 		$this->layout = '';
@@ -425,7 +453,7 @@ class UploadsController extends AppController {
 			$this->set(
 					'uploads', $this->paginate(
 							'Message', array(
-						"Message.user_id" => $_current_login_user,
+						"Message.user2id" => $_current_login_user,
 						'Message.status' => 0,
 						'Message.folder_id' => $status
 							)
@@ -433,7 +461,88 @@ class UploadsController extends AppController {
 			);
 			$_messages = $this->Message->find(
 					"all", array(
-				"conditions" => array("Message.user_id" => $_current_login_user, 'Message.status' => 0, 'Message.folder_id' => $status),
+				"conditions" => array("Message.user2id" => $_current_login_user, 'Message.status' => 0, 'Message.folder_id' => $status),
+				"order" => array("Message.id DESC")
+					)
+			);
+			$this->ManageFolder = new ManageFolder();
+			$folder = $this->ManageFolder->read(null, $status);
+			$_label = ucwords(strtolower($folder['ManageFolder']['Name']));
+			$this->set('folder_id', $status);
+		}
+		$this->Paginator->settings = $this->paginate;
+		$this->set('users', $this->User->find('list', array('fields' => array('username'))));
+		$this->set("messages", $_messages);
+		$this->set("_label", $_label);
+	}
+
+
+	public function _client_list($status = 0, $folder = false, $admin = 1) {
+		$this->User = new User();
+		$this->Message = new Message();
+		if($admin) {
+			$_current_login_user = $this->_admin_data['id'];
+		} else {
+			$_current_login_user = $this->_client_data['id'];
+		}
+		$_label = '';
+		if (!$folder) {
+			switch ($status) {
+				case 0:
+					$this->set('uploads', $this->paginate('Message', array("Message.user2id" => $_current_login_user, 'Message.status' => 0)));
+					$_messages = $this->Message->find(
+							"all", array(
+						"conditions" => array("Message.user2id" => $_current_login_user, 'Message.status' => 0),
+						"order" => array("Message.id DESC")
+							)
+					);
+					$_label = 'Inbox';
+					break;
+				case 4:
+					$this->set('uploads', $this->paginate('Message', array("Message.user_id" => $_current_login_user, 'Message.status' => 4)));
+					$_messages = $this->Message->find(
+							"all", array(
+						"conditions" => array("Message.user_id" => $_current_login_user, 'Message.status' => 4),
+						"order" => array("Message.id DESC")
+							)
+					);
+					$_label = 'Drafts';
+					break;
+				case 5:
+					$this->set('uploads', $this->paginate('Message', array("Message.user_id" => $_current_login_user, 'Message.status' => 0)));
+					$_messages = $this->Message->find(
+							"all", array(
+						"conditions" => array("Message.user_id" => $_current_login_user, 'Message.status' => 0),
+						"order" => array("Message.id DESC")
+							)
+					);
+					$_label = 'Sent';
+					break;
+				default :
+					$this->set('uploads', $this->paginate('Message', array("Message.user_id" => $_current_login_user, 'Message.status' => 0)));
+					$_messages = $this->Message->find(
+							"all", array(
+						"conditions" => array("Message.user_id" => $_current_login_user, 'Message.status' => 0),
+						"order" => array("Message.id DESC")
+							)
+					);
+					$_label = 'Inbox';
+					break;
+			}
+			$this->set('folder_id', 0);
+		} else {
+			$this->set(
+					'uploads', $this->paginate(
+							'Message', array(
+						"Message.user2id" => $_current_login_user,
+						'Message.status' => 0,
+						'Message.folder_id' => $status
+							)
+					)
+			);
+			$_messages = $this->Message->find(
+					"all", array(
+				"conditions" => array("Message.user2id" => $_current_login_user, 'Message.status' => 0, 'Message.folder_id' => $status),
 				"order" => array("Message.id DESC")
 					)
 			);
@@ -462,6 +571,23 @@ class UploadsController extends AppController {
 
 	public function folder($id) {
 		$this->_admin_list($id, true, 0);
+	}
+
+
+	function client_inbox() {
+		$this->_client_list(0, 0, 0);
+	}
+
+	public function client_sent() {
+		$this->_client_list(5, 0, 0);
+	}
+
+	public function client_draft() {
+		$this->_client_list(4, 0, 0);
+	}
+
+	public function client_folder($id) {
+		$this->_client_list($id, true, 0);
 	}
 
 	/**
@@ -496,6 +622,7 @@ class UploadsController extends AppController {
 						$this->Document = new Document();
 						$document = array('Document' => array());
 						$document['Document']['name'] = $this->request->data['Upload']['filename']['name'];
+						$document['Document']['title'] = $this->request->data['Upload']['title'];
 						$document['Document']['filename'] = $file_name;
 						if ($this->Document->save($document)) {
 							$_insert_id = $this->Document->getLastInsertID();
@@ -533,6 +660,86 @@ class UploadsController extends AppController {
 					$this->redirect('/uploads/folder/'.$folder_id);
 				} else {
 					$this->redirect(array('action' => 'inbox'));
+				}
+			} else {
+				$this->Session->setFlash('Please make sure required options are selected');
+			}
+			die;
+		}
+		$this->set('_folder_id', $folder_id);
+	}
+
+
+	/**
+	 * client_add method
+	 *
+	 * @return void
+	 */
+	public function client_add($folder_id = 0) {
+		if ($this->request->is('post')) {
+			//pr($this->request->data); die;
+			if ($this->request->data['Upload']['filename']['error'] == '0') {
+				$tmp_name = $this->request->data['Upload']['filename']['tmp_name'];
+
+				$_ext = explode('.', $this->request->data['Upload']['filename']['name']);
+				$ext = $_ext[count($_ext) - 1];
+				$file_name = sha1(time() . microtime() . rand()) . '.' . $ext;
+
+				$movable = false;
+				$destination = WWW_ROOT . 'files/uploads/';
+				if (!is_dir($destination)) {
+					if (!mkdir($destination)) {
+						$this->Session->setFlash('Could not create appropriate folder', "Error");
+					}
+				}
+				if (is_writable($destination)) {
+					$movable = true;
+				} else {
+					$this->Session->setFlash('Destination directory not writable', "Error");
+				}
+				if ($movable) {
+					if (move_uploaded_file($tmp_name, $destination . $file_name)) {
+						$this->Document = new Document();
+						$document = array('Document' => array());
+						$document['Document']['name'] = $this->request->data['Upload']['filename']['name'];
+						$document['Document']['title'] = $this->request->data['Upload']['title'];
+						$document['Document']['filename'] = $file_name;
+						if ($this->Document->save($document)) {
+							$_insert_id = $this->Document->getLastInsertID();
+
+							$message = array(
+								'Message' => array(
+									'status' => 0,
+									'document_id' => $_insert_id,
+									'folder_id' => $folder_id,
+									'message' => $this->request->data['Upload']['description'],
+									'user_id' => $this->_client_data['id'],
+								)
+							);
+							$this->Message = new Message();
+							if (isset($this->request->data['Upload']['filetouser']) && is_array($this->request->data['Upload']['filetouser']) && count($this->request->data['Upload']['filetouser'])) {
+								foreach ($this->request->data['Upload']['filetouser'] as $filetouser) {
+									$this->Message->create();
+									$message['Message']['user2id'] = $filetouser;
+									$this->Message->save($message);
+								}
+							} else {
+								$message['Message']['status'] = 4;
+								$this->Message->save($message);
+							}
+						} else {
+							$this->Session->setFlash('File could not be saved. Please try again');
+						}
+					} else {
+						$this->Session->setFlash('File could not be uploaded. Please try again');
+					}
+				} else {
+					$this->Session->setFlash('Could not upload file due to folder permissions.');
+				}
+				if($folder_id) {
+					$this->redirect('/client/uploads/folder/'.$folder_id);
+				} else {
+					$this->redirect(array('action' => 'inbox', 'client' => true));
 				}
 			} else {
 				$this->Session->setFlash('Please make sure required options are selected');

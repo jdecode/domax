@@ -15,7 +15,7 @@
 			$.ajax({
 				type: 'POST',
 				data: 'action_id=' + action_id,
-				url: '<?php echo $this->base ?>/uploads/ajax',
+				url: '<?php echo $this->base ?>/client/uploads/ajax',
 				success: function(resp) {
 					$("#response").html(resp);
 				}
@@ -49,7 +49,7 @@
 				<?php
 				echo $this->Form->input('filename', array('label' => false, 'type' => 'file'));
 
-				echo $this->Form->input('upload_by', array('type' => 'hidden', 'value' => $_user_data['id']));
+				echo $this->Form->input('upload_by', array('type' => 'hidden', 'value' => $_client_data['id']));
 				?>
 			</div>
 		</div>

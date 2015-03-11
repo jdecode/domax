@@ -13,7 +13,7 @@
 					array(
 						"controller" => "uploads",
 						"action" => "add/".$_add_id,
-						"admin" => false
+						"client" => true
 					),
 					array(
 						"escape" => false,

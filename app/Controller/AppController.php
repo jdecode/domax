@@ -46,6 +46,7 @@ class AppController extends Controller {
 	);
 	//var $uses = array('User', 'Client', 'Upload', 'Department');
 	var $_user_data = array();
+	var $_client_data = array();
 	var $_admin_data = array();
 
 	/**
@@ -54,6 +55,9 @@ class AppController extends Controller {
 	function beforeRender() {
 		$_user_data = $this->Session->read('user.User');
 		$this->set('_user_data', $_user_data);
+
+		$_client_data = $this->Session->read('client.User');
+		$this->set('_client_data', $_client_data);
 
 		$_admin_data = $this->Session->read('admin.User');
 		$this->set('_admin_data', $_admin_data);
@@ -85,6 +89,9 @@ class AppController extends Controller {
 	function beforeFilter() {
 		$_user_data = $this->Session->read('user.User');
 		$this->_user_data = $_user_data;
+
+		$_client_data = $this->Session->read('client.User');
+		$this->_client_data = $_client_data;
 
 		$_admin_data = $this->Session->read('admin.User');
 		$this->_admin_data = $_admin_data;
@@ -127,6 +134,26 @@ class AppController extends Controller {
 		}
 	}
 
+	/**
+	 * _client_auth_check method
+	 *
+	 * @return true, if logged in as client, false otherwise
+	 */
+	function _client_auth_check() {
+		$_user = $this->Session->read('client.User');
+		if (
+				isset($_user['id']) &&
+				is_numeric($_user['id']) &&
+				( $_user['group_id'] == CLIENT_GROUP_ID )
+		) {
+			$this->layout = 'client_dashboard';
+			return true;
+		} else {
+			$this->layout = 'client_login';
+			return false;
+		}
+	}
+
 	function _deny_url() {
 		$action = $this->params->params['action'];
 		// If method requires login then redirect to login page[if logged out] with referer URL, and to dashboard otherwise
@@ -144,6 +171,15 @@ class AppController extends Controller {
 				if (!$this->_user_auth_check()) {
 					//$this->Session->write('redirect', "/".$this->params->url);
 					$this->redirect('/login');
+				}
+			}
+		}
+		// If method requires login then redirect to login page[if logged out] with referer URL, and to homepage otherwise
+		if (!empty($this->_deny['client'])) {
+			if (in_array($action, $this->_deny['client'])) {
+				if (!$this->_client_auth_check()) {
+					//$this->Session->write('redirect', "/".$this->params->url);
+					$this->redirect('/client');
 				}
 			}
 		}

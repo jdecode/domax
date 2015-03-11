@@ -41,11 +41,8 @@ if ($this->params['controller'] == 'users' && $this->params['action'] == 'admin_
 
 <ul class="sidebar-menu" id="nav-accordion">
 
-	<p class="centered"><a href="#">
-			<?php echo $this->Html->image("/assets/img/ui-sam.jpg",array("class"=>"img-circle", "width"=>"60"))?>
-			
-			</a></p>
-	<h5 class="centered">him-soft-solution Admin</h5>
+	<p class="centered"></p>
+
 <?php //if (isset($_SESSION['Auth']['User']['group_id']) && $_SESSION['Auth']['User']['group_id'] == '1') { ?>
 <?php if ($_is_admin) { ?>
 	<li class="sub-menu">

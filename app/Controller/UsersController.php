@@ -34,7 +34,12 @@ class UsersController extends AppController {
 				'dashboard',
 				'changepassword',
 				'logout',
-			)
+			),
+			'client' => array(
+				'client_dashboard',
+				'client_changepassword',
+				'client_logout',
+			),
 		);
 		$this->_deny_url($this->_deny);
 	}
@@ -172,6 +177,13 @@ class UsersController extends AppController {
 		//$this->set('file', $this->Upload->find('all', array('conditions' => array('Upload.user_id' => $this->Auth->user('id')))));
 	}
 
+	public function client_dashboard() {
+		$this->layout = 'client_dashboard';
+		$this->recursive = '0';
+		$this->redirect('/client/uploads/inbox');
+		//$this->set('file', $this->Upload->find('all', array('conditions' => array('Upload.user_id' => $this->Auth->user('id')))));
+	}
+
 	public function admin_userlist() {
 		$this->layout = '';
 		$this->set('user', $this->User->find('list', array('fields' => array('username'), 'conditions' => array('group_id' => $_POST['g_id']))));
@@ -208,6 +220,48 @@ class UsersController extends AppController {
 					} else {
 						$this->Session->setFlash('You are now logged in', 'flash_close', array('class' => 'alert alert-success'));
 						$this->redirect('/dashboard');
+					}
+				} else {
+					$this->check_login_retries();
+					$this->Session->setFlash('Incorrect password. Please try again', 'flash_close', array('class' => 'alert alert-error'));
+				}
+			} else {
+				$this->Session->setFlash('User not found, or is inactive', 'flash_close', array('class' => 'alert alert-error'));
+			}
+		}
+	}
+
+	function client_login() {
+		$this->layout = 'admin_login';
+		$this->set('title_for_layout', 'Client Login');
+		if ($this->_client_auth_check()) {
+			$this->redirect('/client/dashboard');
+		}
+		if ($this->request->is('post')) {
+			$user = $this->User->find(
+					'first', array(
+				'conditions' => array(
+					'User.username' => $this->request->data['User']['username'],
+					'User.status' => 1,
+					'User.group_id' => CLIENT_GROUP_ID
+				),
+				'recursive' => -1
+					)
+			);
+			if ($user) {
+				if ($user['User']['password'] == sha1($this->request->data['User']['password'])) {
+					$this->Session->write('client', $user);
+					$this->Session->setFlash('You are now logged in', 'flash_close', array('class' => 'alert-success'));
+					$this->redirect('/client/dashboard');
+
+					$_redirect = @$this->Session->read('redirect');
+					if (trim($_redirect) != '') {
+						$this->Session->setFlash('Welcome back!', 'flash_close', array('class' => 'alert alert-success'));
+						$this->Session->delete('redirect');
+						$this->redirect("$_redirect");
+					} else {
+						$this->Session->setFlash('You are now logged in', 'flash_close', array('class' => 'alert alert-success'));
+						$this->redirect('/client/dashboard');
 					}
 				} else {
 					$this->check_login_retries();
@@ -287,9 +341,49 @@ class UsersController extends AppController {
 		$this->redirect('/admin/login');
 	}
 
+	/**
+	 * client logout method
+	 *
+	 * @return void
+	 */
+	public function client_logout() {
+		$this->Session->delete('client');
+		$this->Session->setFlash('You are now logged out.', 'flash_close', array('class' => 'alert alert-success'));
+		$this->redirect('/client');
+	}
+
 	public function admin_changepassword() {
 		if ($this->request->is('post') || $this->request->is('put')) {
 			$this->User->id = $this->_admin_data['id'];
+			$this->User->recursive = -1;
+			$password = $this->User->find('first', array('conditions' => array('User.id' => $this->User->id)));
+			//debug($password);
+			if (empty($this->request->data['User']['old_password'])) {
+				$this->Session->setFlash("Please Enter your Old Password", 'error');
+				$this->redirect(array('controller' => 'Users', 'action' => 'changepassword'));
+			} else if (empty($this->request->data['User']['new_password'])) {
+				$this->Session->setFlash("Please Enter your New Password");
+				$this->redirect(array('controller' => 'Users', 'action' => 'changepassword'));
+			} else if (sha1($this->request->data['User']['old_password']) != $password['User']['password']) {
+				//debug(AuthComponent::password($this->request->data['User']['old_password'])); exit;
+				$this->Session->setFlash("Your old password did not matched.", 'error');
+				$this->redirect(array('controller' => 'Users', 'action' => 'changepassword'));
+			} else if ($this->request->data['User']['new_password'] != $this->request->data['User']['new_password']) {
+				$this->Session->setFlash("Confirmed Password mismatch.", 'error');
+				$this->redirect(array('controller' => 'Users', 'action' => 'changepassword'));
+			} else {
+				$this->request->data['User']['password'] = $this->request->data['User']['new_password'];
+				$this->User->save($this->request->data);
+				$this->Session->setFlash("Password Changed successfully.", 'success');
+				$this->redirect(array('controller' => 'Users', 'action' => 'client'));
+			}
+		}
+	}
+
+
+	public function client_changepassword() {
+		if ($this->request->is('post') || $this->request->is('put')) {
+			$this->User->id = $this->_client_data['id'];
 			$this->User->recursive = -1;
 			$password = $this->User->find('first', array('conditions' => array('User.id' => $this->User->id)));
 			//debug($password);
