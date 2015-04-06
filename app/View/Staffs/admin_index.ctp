@@ -1,4 +1,7 @@
-
+<?php
+$page = isset($this->params->params['named']['page']) && is_numeric($this->params->params['named']['page']) ? $this->params->params['named']['page'] : 1;
+echo $page;
+?>
 <div class="col-md-12">
 	<div class="content-panel">
 		<table class="table table-striped table-advance table-hover">
@@ -17,40 +20,44 @@
 					<th><?php echo $this->Paginator->sort('department'); ?></th>
 					<th class="actions"><?php echo __('Actions'); ?></th>
 				</tr>
-				
+
 				<tr>
 					<td>&nbsp;</td>
-					<td><?php echo $this->Form->input('staff_name', array('label' => false, "class" => "form-control input-sm")); ?></td>
-					<td><?php echo $this->Form->input('father_name', array('label' => false, "class" => "form-control input-sm")); ?></td>
+					<td><?php echo $this->Form->input('staff_name', array('label' => false, "class" => "form-control input-sm", "required" => false)); ?></td>
+					<td><?php echo $this->Form->input('father_name', array('label' => false, "class" => "form-control input-sm", "required" => false)); ?></td>
 					<td>&nbsp;</td>
-					<td><?php echo $this->Form->input('dept', array('type'=>'select','options'=>$dept_list,'empty'=>'Select','label' => false, "class" => "form-control input-sm")); ?></td>
+					<td><?php echo $this->Form->input('dept', array('type' => 'select', 'options' => $dept_list, 'empty' => 'Select', 'label' => false, "class" => "form-control input-sm")); ?></td>
 					<td><?php echo $this->Form->input("Filter", array("type" => "submit", "label" => false, "class" => "btn btn-sm btn-theme")); ?></td>
 				</tr>
 				<?php echo $this->Form->end(); ?>
-				
+
 			</thead>
 			<tbody>
 
-				<?php 
-				
-				if(!empty($staffs)){
-				foreach ($staffs as $staff): ?>
-					<tr>
-						<td><?php echo h($staff['Staff']['id']); ?>&nbsp;</td>
-						<td>
-							<?php echo $this->Html->link($staff['Staff']['name'], array('controller' => 'users', 'action' => 'view', $staff['User']['id'])); ?>
-						</td>
+				<?php
+				if (!empty($staffs)) {
+					$i = 1+(($page-1)*10);
+					foreach ($staffs as $staff) {
+						?>
+						<tr>
+							<td><?php echo $i; ?>&nbsp;</td>
+							<td>
+								<?php echo $this->Html->link($staff['Staff']['name'], array('controller' => 'users', 'action' => 'view', $staff['User']['id'])); ?>
+							</td>
 
-						<td><?php echo h($staff['Staff']['father_name']); ?>&nbsp;</td>
-						<td><?php echo h($staff['Staff']['dob']); ?>&nbsp;</td>
-						<td><?php echo $depart[$staff['Staff']['department_id']]; ?>&nbsp;</td>
-						<td class="actions">
-							<?php echo $this->Html->link('<button class="btn btn-success btn-xs"><i class="glyphicon glyphicon-eye-open"></i></button>', array('action' => 'view', $staff['Staff']['id']), array('escape' => false)); ?>
-							<?php echo $this->Html->link('<button class="btn btn-primary btn-xs"><i class="fa fa-pencil"></i></button>', array('action' => 'edit', $staff['Staff']['id']), array('escape' => false)); ?>
-							<?php echo $this->Form->postLink('<button class="btn btn-danger btn-xs"><i class="fa fa-trash-o "></i></button>', array('action' => 'delete', $staff['Staff']['id']), array('escape' => false), __('Are you sure you want to delete # %s?', $staff['Staff']['id'])); ?>
-						</td>
-					</tr>
-				<?php endforeach;  }else {
+							<td><?php echo h($staff['Staff']['father_name']); ?>&nbsp;</td>
+							<td><?php echo h($staff['Staff']['dob']); ?>&nbsp;</td>
+							<td><?php echo $depart[$staff['Staff']['department_id']]; ?>&nbsp;</td>
+							<td class="actions">
+								<?php echo $this->Html->link('<button class="btn btn-success btn-xs"><i class="glyphicon glyphicon-eye-open"></i></button>', array('action' => 'view', $staff['Staff']['id']), array('escape' => false)); ?>
+								<?php echo $this->Html->link('<button class="btn btn-primary btn-xs"><i class="fa fa-pencil"></i></button>', array('action' => 'edit', $staff['Staff']['id']), array('escape' => false)); ?>
+								<?php echo $this->Form->postLink('<button class="btn btn-danger btn-xs"><i class="fa fa-trash-o "></i></button>', array('action' => 'delete', $staff['Staff']['id']), array('escape' => false), __('Are you sure you want to delete # %s?', $staff['Staff']['id'])); ?>
+							</td>
+						</tr>
+						<?php
+						$i++;
+					}
+				} else {
 					?>
 					<tr>
 						<td colspan="9">
@@ -86,7 +93,7 @@
 
 		$params = $this->Paginator->params();
 		if ($params['pageCount'] > 1) {
-			$this->Paginator->options = array( 'url' => $paginatorURL );
+			$this->Paginator->options = array('url' => $paginatorURL);
 			?>
 			<ul class="pagination">
 				<li><?php echo $this->Paginator->first('«', array('escape' => false), null, array('escape' => false, 'class' => 'prev disabled')); ?></li>

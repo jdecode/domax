@@ -37,12 +37,15 @@ if ($this->params['controller'] == 'users' && $this->params['action'] == 'admin_
 
 ?>
 
-
+<?php //echo $_Inbox;?>
 
 <ul class="sidebar-menu" id="nav-accordion">
 
-	<p class="centered"></p>
-
+	<!--<p class="centered"><a href="#">
+			<?php echo $this->Html->image("/assets/img/ui-sam.jpg",array("class"=>"img-circle", "width"=>"60"))?>
+			
+			</a></p>
+	<h5 class="centered">him-soft-solution Admin</h5>-->
 <?php //if (isset($_SESSION['Auth']['User']['group_id']) && $_SESSION['Auth']['User']['group_id'] == '1') { ?>
 <?php if ($_is_admin) { ?>
 	<li class="sub-menu">
@@ -73,19 +76,24 @@ if ($this->params['controller'] == 'users' && $this->params['action'] == 'admin_
 			<span>Uploads</span>
 		</a>
 		<ul class="sub">
-			<li><?php echo $this->Html->link(__('Received'), array('controller' => 'uploads', 'action' => 'inbox')); ?> </li>
-			<li><?php echo $this->Html->link(__('Uploaded'), array('controller' => 'uploads', 'action' => 'draft')); ?> </li>
-			<li><?php echo $this->Html->link(__('Sent'), array('controller' => 'uploads', 'action' => 'sent')); ?> </li>
-			<li><?php echo $this->Html->link(__('Compose'), array('controller' => 'uploads', 'action' => 'add')); ?> </li>
+			<li><?php echo $this->Html->link(__('Received ('.$_Inbox.')'), array('controller' => 'uploads', 'action' => 'inbox')); ?> </li>
+			<li><?php echo $this->Html->link(__('Uploaded ('.$_Draft.')'), array('controller' => 'uploads', 'action' => 'draft')); ?> </li>
+			<li><?php echo $this->Html->link(__('Sent ('.$_Sent.')'), array('controller' => 'uploads', 'action' => 'sent')); ?> </li>
+			
 			<?php
+			//pr($_folders);die;
 			if(isset($_folders) && is_array($_folders) && count($_folders)) {
 				foreach($_folders as $_folder) {
+					
 				?>
-				<li><?php echo $this->Html->link(ucwords(strtolower($_folder['ManageFolder']['Name'])), array('controller' => 'uploads', 'action' => 'folder/'.$_folder['ManageFolder']['id'], 'admin' => true)); ?> </li>
+				<li><?php echo $this->Html->link(ucwords(strtolower($_folder['ManageFolder']['Name'].' ('.$_folder['ManageFolder']['count'].')' )), array('controller' => 'uploads', 'action' => 'folder/'.$_folder['ManageFolder']['id'], 'admin' => true)); ?> </li>
 				<?php
+						
 				}
 			}
 			?>
+			
+			<li><?php echo $this->Html->link(__('Compose'), array('controller' => 'uploads', 'action' => 'add')); ?> </li>
 		</ul>
 	</li>
 	<li class="sub-menu">

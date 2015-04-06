@@ -22,6 +22,8 @@
  */
 App::uses('Controller', 'Controller');
 App::uses('ManageFolder', 'Model');
+App::uses('User', 'Model');
+App::uses('Message', 'Model');
 
 /**
  * This is a placeholder class.
@@ -39,7 +41,7 @@ App::uses('File', 'Utility');
 class AppController extends Controller {
 
 	public $paginate = array(
-		'limit' => 20,
+		'limit' => 10,
 	);
 	var $helpers = array('Html', 'Form', 'Session', 'Js', 'Time');
 	var $components = array('RequestHandler', 'Session', 'Cookie', 'Paginator'
@@ -57,30 +59,64 @@ class AppController extends Controller {
 		$this->set('_user_data', $_user_data);
 
 		$_client_data = $this->Session->read('client.User');
+
 		$this->set('_client_data', $_client_data);
 
 		$_admin_data = $this->Session->read('admin.User');
 		$this->set('_admin_data', $_admin_data);
-		
-		if($_admin_data['group_id'] == 1) {
+
+		if ($_admin_data['group_id'] == 1) {
 			$this->set('_is_admin', 1);
 		} else {
 			$this->set('_is_admin', 0);
 		}
-		
+
+		if ($_admin_data) {
+			$_current_login_user = $_admin_data;
+		} else if ($_client_data) {
+			$_current_login_user = $_client_data;
+		} else {
+			$_current_login_user = $_user_data;
+		}
+		//pr($this->Session->read('user.User'))die('hello');
 		/**
 		 * Load Folders
 		 */
+		$this->Message = new Message();
+		$_Inbox = $this->Message->find('count', array('conditions' => array('AND' => array('user2id' => $_current_login_user['id']), array('Message.status' => 0))));
+		$_Sent = $this->Message->find('count', array('conditions' => array('AND' => array('user_id' => $_current_login_user['id']), array('Message.status' => 0))));
+		$_Draft = $this->Message->find('count', array('conditions' => array('AND' => array('user_id' => $_current_login_user['id']), array('user2id' => 0), array('Message.status' => 4))));
 		$this->ManageFolder = new ManageFolder();
 		$_folders = $this->ManageFolder->find(
 				'all', array(
-					'conditions' => array(
-						'ManageFolder.status' => 1,
-						'ManageFolder.user_id !=' => 0
-						)
+			'conditions' => array(
+				'ManageFolder.status' => 1,
+				'ManageFolder.user_id ' => 1  // $this->_admin_data['id']
+			)
+				)
+		);
+		$__folders = array();
+		$_folder = array();
+		$i = 0;
+		foreach ($_folders as $_f) {
+			$_f_data = $this->Message->find(
+					'count', array(
+				'conditions' => array(
+					'Message.user_id' => $_current_login_user['id'],
+					'Message.status' => 0,
+					'Message.folder_id' => $_f['ManageFolder']['id'],
+				)
 					)
-				);
-		$this->set('_folders', $_folders);
+			);
+			$__folders[$i] = $_f;
+			$__folders[$i]['ManageFolder']['count'] = $_f_data;
+			$i++;
+		}
+		$this->set('_folderf', $_folder);
+		$this->set('_folders', $__folders);
+		$this->set('_Inbox', $_Inbox);
+		$this->set('_Sent', $_Sent);
+		$this->set('_Draft', $_Draft);
 	}
 
 	/**
@@ -91,6 +127,7 @@ class AppController extends Controller {
 		$this->_user_data = $_user_data;
 
 		$_client_data = $this->Session->read('client.User');
+
 		$this->_client_data = $_client_data;
 
 		$_admin_data = $this->Session->read('admin.User');
@@ -105,6 +142,7 @@ class AppController extends Controller {
 	 */
 	function _admin_auth_check() {
 		$_user = $this->Session->read('admin.User');
+		//pr($_user); die('admin');	
 		if (isset($_user['id']) && is_numeric($_user['id']) && $_user['group_id'] == ADMIN_GROUP_ID) { // Admin group_id is 1
 			$this->layout = 'admin_dashboard';
 			return true;
@@ -120,11 +158,12 @@ class AppController extends Controller {
 	 * @return true, if logged in as admin, false otherwise
 	 */
 	function _user_auth_check() {
+		//	pr($this->Session->read('user.User')); die('Session');
 		$_user = $this->Session->read('user.User');
 		if (
 				isset($_user['id']) &&
 				is_numeric($_user['id']) &&
-				( $_user['group_id'] == STAFF_GROUP_ID )
+				( $_user['group_id'] == STAFF_GROUP_ID)	//
 		) {
 			$this->layout = 'dashboard';
 			return true;
@@ -140,7 +179,9 @@ class AppController extends Controller {
 	 * @return true, if logged in as client, false otherwise
 	 */
 	function _client_auth_check() {
+
 		$_user = $this->Session->read('client.User');
+
 		if (
 				isset($_user['id']) &&
 				is_numeric($_user['id']) &&
@@ -197,6 +238,18 @@ class AppController extends Controller {
 		$retain = $this->params['url'];
 		unset($retain['url']);
 		$this->set('paginatorURL', array($passed, '?' => http_build_query($retain)));
+	}
+
+	function _login_user_name() {
+		$_user_id = $this->_admin_data['id'];
+		$_user_info = $this->User->find(
+				'all', array(
+			'conditions' => array(
+				'User.id' => $_user_id
+			)
+				)
+		);
+		$this->set('_user_info', $_user_info);
 	}
 
 }

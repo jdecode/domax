@@ -4,7 +4,9 @@
 //pr($t_data);
 //}
 //die;
+//echo "hello";
 ?>
+
 <div class="col-md-12">
 	<div class="content-panel">
 
@@ -26,15 +28,15 @@
 					<th><?php echo $this->Paginator->sort('modified'); ?></th>-->
 					<th class="actions"><?php echo __('Actions'); ?></th>
 				</tr>
-				<tr>
+			<!--	<tr>
 					<td>&nbsp;</td>
 					<td><?php echo $this->Form->input('name', array('label' => false, "class" => "form-control input-sm")); ?></td>
 					<td></td>
 
 
 					<td><?php echo $this->Form->input("Filter", array("type" => "submit", "label" => false, "class" => "btn btn-sm btn-theme")); ?></td>
-				</tr>
-				<?php echo $this->Form->end(); ?>
+				</tr>-->
+				<?php //echo $this->Form->end(); ?>
 			</thead>
 			<tbody>
 

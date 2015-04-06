@@ -46,16 +46,17 @@
 					<div class="fa fa-bars tooltips" data-placement="right" data-original-title="Toggle Navigation"></div>
 				</div>
 				<!--logo start-->
-				<a href="<?php echo $this->webroot.'client' ?>" class="logo"><b>E-DOCUMENT MANAGEMENT SYSTEM</b></a>
+				<a href="<?php echo $this->webroot.'' ?>" class="logo"><b>E-DOCUMENT MANAGEMENT SYSTEM</b></a>
 				<!--logo end-->
 
 				<div class="top-menu">
 					<ul class="nav pull-right top-menu">
+						<li><?php echo "<span style='text-transform:uppercase; position:relative;top:20px;' class ='logout'>".$_client_data['username']."</span>" ?></li>         <!--$_admin_data['username']-->
 						<li>
-							<?php echo $this->Html->link("Change password", array("controller" => "users", "action" => "changepassword", "client" => true), array("class" => "logout")); ?>
+							<?php echo $this->Html->link("Change password", array("controller" => "users", "action" => "changepassword"), array("class" => "logout")); ?>
 						</li>
 						<li>
-							<?php echo $this->Html->link("Logout", array("controller" => "users", "action" => "logout", "client" => true), array("class" => "logout")); ?>
+							<?php echo $this->Html->link("Logout", array("controller" => "users", "action" => "logout"), array("class" => "logout")); ?>
 						</li>
 					</ul>
 				</div>
@@ -137,7 +138,6 @@
             });
 
 		</script>
-
+		<?php echo $this->element('sql_dump');?> 
 	</body>
-	<?php echo $this->element('sql_dump');?>
 </html>

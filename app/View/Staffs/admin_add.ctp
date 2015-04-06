@@ -1,9 +1,10 @@
+
 <div class="col-lg-8">
 	<div class="form-panel">
 		<h4 class="mb"><i class="fa fa-angle-right"></i> Add Staff</h4>
 
 		<?php echo $this->Form->create('Staff', array("class" => "form-horizontal style-form", "type" => 'post')); ?>
-		<?php echo $this->Form->input('User.group_id', array('type' => 'hidden', array('label' => ''), 'value' => CLIENT_GROUP_ID)); ?>
+		<?php echo $this->Form->input('User.group_id', array('type' => 'hidden', array('label' => ''), 'value' => '2')); ?>
 		<div class="form-group">
 			<label class="col-sm-3 col-sm-3 control-label">User Name</label>
 			<div class="col-sm-9">

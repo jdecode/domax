@@ -56,6 +56,19 @@ class UsersController extends AppController {
 		$this->set('users', $this->paginate());
 	}
 
+	function _load_view($id) {
+		//$this->layout = 'admin';
+		$this->loadModel('Message');
+		$this->User->id = $id;
+		if (!$this->User->exists()) {
+			throw new NotFoundException(__('Invalid user'));
+		}else{
+		$this->set('user', $this->User->read(null, $id));
+		$this->set('document', $this->Message->find('all', array('conditions' => array('Message.user2id' => $id))));
+		//$this->loadModel('Upload');
+		//$this->set('upload', $this->Upload->find('all', array('conditions' => array('user_id' => $this->User->id))));
+		}
+	}
 	/**
 	 * view method
 	 *
@@ -63,16 +76,19 @@ class UsersController extends AppController {
 	 * @return void
 	 */
 	public function admin_view($id = null) {
-		//$this->layout = 'admin';
-		$this->User->id = $id;
-		if (!$this->User->exists()) {
-			throw new NotFoundException(__('Invalid user'));
-		}else{
-		$this->set('user', $this->User->read(null, $id));
-		$this->loadModel('Upload');
-		$this->set('upload', $this->Upload->find('all', array('conditions' => array('user_id' => $this->User->id))));
-		}
+		$this->_load_view($id);
 	}
+	
+		/**
+	 * view method
+	 *
+	 * @param string $id
+	 * @return void
+	 */
+	public function view($id = null) {
+		$this->_load_view($id);
+	}
+
 
 	/**
 	 * add method
@@ -190,8 +206,8 @@ class UsersController extends AppController {
 	}
 
 	function login() {
-		$this->layout = 'admin_login';
 		$this->set('title_for_layout', 'Login');
+		//die('user_login');
 		if ($this->_user_auth_check()) {
 			$this->redirect('/dashboard');
 		}
@@ -201,7 +217,7 @@ class UsersController extends AppController {
 				'conditions' => array(
 					'User.username' => $this->request->data['User']['username'],
 					'User.status' => 1,
-					'User.group_id != ' . ADMIN_GROUP_ID
+					'User.group_id  ' => STAFF_GROUP_ID
 				),
 				'recursive' => -1
 					)
@@ -232,12 +248,17 @@ class UsersController extends AppController {
 	}
 
 	function client_login() {
-		$this->layout = 'admin_login';
-		$this->set('title_for_layout', 'Client Login');
+		$this->layout = 'client_login';
+	//	$this->set('title_for_layout', 'Client Login');
+		//die('client login');
+		//pr($this->request->data); die;
 		if ($this->_client_auth_check()) {
+			//die('jndkj');
 			$this->redirect('/client/dashboard');
 		}
+		
 		if ($this->request->is('post')) {
+			//pr($this->request->data); die;
 			$user = $this->User->find(
 					'first', array(
 				'conditions' => array(
@@ -248,7 +269,9 @@ class UsersController extends AppController {
 				'recursive' => -1
 					)
 			);
+			//pr($user);die;
 			if ($user) {
+				//echo "hello";die;
 				if ($user['User']['password'] == sha1($this->request->data['User']['password'])) {
 					$this->Session->write('client', $user);
 					$this->Session->setFlash('You are now logged in', 'flash_close', array('class' => 'alert-success'));
@@ -281,6 +304,7 @@ class UsersController extends AppController {
 	function admin_login() {
 		$this->layout = 'admin_login';
 		$this->set('title_for_layout', 'Admin Login');
+		//die('admin_login');
 		if ($this->_admin_auth_check()) {
 			$this->redirect('/admin/dashboard');
 		}

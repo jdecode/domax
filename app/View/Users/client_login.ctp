@@ -1,6 +1,6 @@
 <div class="container">
 	
-<?php echo $this->Form->create('User', array('action' => 'login',"class"=>"form-login")); ?>
+<?php echo $this->Form->create('User', array('action' => 'login','client'=>true,"class"=>"form-login")); ?>
 	<?php echo $this->Session->flash();?>
 	
 		<h2 class="form-login-heading">sign in now</h2>

@@ -16,6 +16,9 @@
 			"/assets/font-awesome/css/font-awesome.css",
 			"/assets/css/style.css",
 			"/assets/css/style-responsive.css"
+		));
+		echo $this->Html->script(array(
+			"/assets/js/jquery.js",
 		))
 		?>
 
@@ -38,7 +41,6 @@
 		</div>
 		<?php
 		echo $this->Html->script(array(
-			"/assets/js/jquery.js",
 			"/assets/js/bootstrap.min.js",
 			"/assets/js/jquery.backstretch.min.js"
 		))
@@ -47,7 +49,8 @@
 		<script>
 			$.backstretch("<?php echo $this->webroot ?>assets/img/login-bg.jpg", {speed: 500});
 		</script>
-		<?php echo $this->element('sql_dump');  ?>
+
+		<?php echo $this->element('sql_dump'); ?>
 
 	</body>
 </html>

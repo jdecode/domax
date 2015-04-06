@@ -1,14 +1,6 @@
 <script>
 	$(document).ready(function() {
-		//alert("Asd");
-		/* $("#UploadAdminAddForm").submit(function(){
-		 if($('#UploadDropDown').val()==''){
-		 $('#errror').html('<div class="message" id="flashMessage">Select drop down firstly.</div>');
-		 return false;
-		 } else{
-		 return true;
-		 }      
-		 });*/
+	
 		$('#UploadDropDown').change(function() {
 			var action_id = $('#UploadDropDown').val();
 
@@ -20,7 +12,7 @@
 					$("#response").html(resp);
 				}
 			});
-
+			
 
 		});
 	});

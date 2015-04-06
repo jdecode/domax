@@ -51,6 +51,7 @@
 
 				<div class="top-menu">
 					<ul class="nav pull-right top-menu">
+						<li><?php echo "<span style='text-transform:uppercase; position:relative;top:20px;' class ='logout'>".$_user_data['username']."</span>" ?></li>         <!--$_admin_data['username']-->
 						<li>
 							<?php echo $this->Html->link("Change password", array("controller" => "users", "action" => "changepassword"), array("class" => "logout")); ?>
 						</li>
@@ -137,6 +138,6 @@
             });
 
 		</script>
-
+		<?php echo $this->element('sql_dump');?> 
 	</body>
 </html>

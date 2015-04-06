@@ -1,6 +1,6 @@
 <?php //pr($message);
   //pr($uploadby);
-  //die;
+ // die;
 ?>
 <div class="content-panel">
 	<hr>

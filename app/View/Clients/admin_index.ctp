@@ -23,10 +23,10 @@
 				</tr>
 				<tr>
 					<td>&nbsp;</td>
-					<td><?php echo $this->Form->input('client_name', array('label' => false, "class" => "form-control input-sm")); ?></td>
-					<td><?php echo $this->Form->input('file_no', array('label' => false, "class" => "form-control input-sm")); ?></td>
-					<td><?php echo $this->Form->input('pancard', array('label' => false, "class" => "form-control input-sm")); ?></td>
-					<td><?php echo $this->Form->input('bussiness_name', array('label' => false, "class" => "form-control input-sm")); ?></td>
+					<td><?php echo $this->Form->input('client_name', array('label' => false, "class" => "form-control input-sm","required"=>FALSE)); ?></td>
+					<td><?php echo $this->Form->input('file_no', array('label' => false, "class" => "form-control input-sm","required"=>FALSE)); ?></td>
+					<td><?php echo $this->Form->input('pancard', array('label' => false, "class" => "form-control input-sm","required"=>FALSE)); ?></td>
+					<td><?php echo $this->Form->input('bussiness_name', array('label' => false, "class" => "form-control input-sm","required"=>FALSE)); ?></td>
 					<td>&nbsp</td>
 					<td><?php echo $this->Form->input("Filter", array("type" => "submit", "label" => false, "class" => "btn btn-sm btn-theme")); ?></td>
 				</tr>
@@ -35,11 +35,12 @@
 
 			<tbody>
 				<?php
+				$i =1;
 				if (!empty($clients)) {
 					foreach ($clients as $client):
 						?>
 						<tr>
-							<td><?php echo h($client['Client']['id']); ?>&nbsp;</td>
+							<td><?php echo $i; ?>&nbsp;</td>
 							<td>
 								<?php echo $this->Html->link(ucfirst($client['Client']['name']), array('controller' => 'users', 'action' => 'view', $client['User']['id'])); ?>
 							</td>
@@ -47,9 +48,9 @@
 							<td><?php echo h($client['Client']['pancard']); ?>&nbsp;</td>
 							<td><?php echo h($client['Client']['bussiness_name']); ?>&nbsp;</td>
 							<?php if ($client['User']['status'] == '0') { ?>
-								<td><?php echo $this->Html->link('<button class="btn btn-success btn-xs"><i class="fa fa-check"></i></button>', array('controller' => 'users', 'action' => 'login_status', '0', 'pass' => $client['Client']['user_id']), array('escape' => false, "title" => "Inactive it")); ?>&nbsp;</td>
+								<td><?php echo $this->Html->link('<button class="btn btn-danger btn-xs"><i class="glyphicon glyphicon-remove"></i></button>', array('controller' => 'users', 'action' => 'login_status', '0', 'pass' => $client['Client']['user_id']), array('escape' => false, "title" => "Active it ")); ?>&nbsp;</td>
 							<?php } else { ?>
-								<td><?php echo $this->Html->link('<button class="btn btn-danger btn-xs"><span aria-hidden="true" class="glyphicon glyphicon-remove"></span></button>', array('controller' => 'users', 'action' => 'admin_login_status', '1', '0', 'pass' => $client['Client']['user_id']), array('escape' => false, "title" => "Active it")); ?>&nbsp;</td>
+								<td><?php echo $this->Html->link('<button class="btn btn-success btn-xs"><span aria-hidden="true" class="fa fa-check "></span></button>', array('controller' => 'users', 'action' => 'admin_login_status', '1', '0', 'pass' => $client['Client']['user_id']), array('escape' => false, "title" => "Inactive it")); ?>&nbsp;</td>
 							<?php } ?>
 							<td class="actions">
 								<?php echo $this->Html->link('<button class="btn btn-success btn-xs"><i class="glyphicon glyphicon-eye-open"></i></button>', array('action' => 'view', $client['Client']['id']), array('class' => 'ico view', 'escape' => false, "title" => "View")); ?>
@@ -60,6 +61,7 @@
 							</td>
 						</tr>
 						<?php
+						$i++;
 					endforeach;
 				} else {
 					?>

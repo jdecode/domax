@@ -50,6 +50,7 @@
 
 				<div class="top-menu">
 					<ul class="nav pull-right top-menu">
+						<li><?php echo "<span style='text-transform:uppercase;position:relative; top:20px;' class ='logout'>".$_admin_data['username']."</span>" ?></li>       
 						<li>
 							<?php echo $this->Html->link("Change password", array("controller" => "users", "action" => "changepassword", "admin" => true), array("class" => "logout")); ?>
 						</li>

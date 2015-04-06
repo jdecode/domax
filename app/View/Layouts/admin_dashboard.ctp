@@ -24,7 +24,7 @@
 			"/assets/js/bootstrap.min.js",
 		))
 		?>
-
+       
 
 		<!-- HTML5 shim and Respond.js IE8 support of HTML5 elements and media queries -->
 		<!--[if lt IE 9]>
@@ -47,9 +47,10 @@
 				<!--logo start-->
 				<a href="<?php echo $this->webroot.'admin' ?>" class="logo"><b>E-DOCUMENT MANAGEMENT SYSTEM</b></a>
 				<!--logo end-->
-
+                <?php //pr($_admin_data); ?>
 				<div class="top-menu">
 					<ul class="nav pull-right top-menu">
+						<li><?php echo "<span style='text-transform:uppercase;position:relative; top:20px;' class ='logout'>".$_admin_data['username']."</span>" ?></li>         <!--$_admin_data['username']-->
 						<li>
 							<?php echo $this->Html->link("Change password", array("controller" => "users", "action" => "changepassword", "admin" => true), array("class" => "logout")); ?>
 						</li>

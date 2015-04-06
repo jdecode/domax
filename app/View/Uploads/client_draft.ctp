@@ -1,2 +1,2 @@
 <?php
-	echo $this->element('client_listing');
+	echo $this->element('listing');

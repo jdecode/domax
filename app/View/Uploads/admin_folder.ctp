@@ -1,2 +1,2 @@
 <?php
-	echo $this->element('admin_listing');
+	echo $this->element('folder_listing');

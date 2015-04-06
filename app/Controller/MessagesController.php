@@ -97,6 +97,7 @@ class MessagesController extends AppController {
  * @return void
  */
 	public function delete($id = null) {
+		//echo $id; die;
 		$this->Message->id = $id;
 		if (!$this->Message->exists()) {
 			throw new NotFoundException(__('Invalid message'));
@@ -109,4 +110,23 @@ class MessagesController extends AppController {
 		}
 		return $this->redirect(array('action' => 'index'));
 	}
-}
+
+	
+	public function admin_delete($id= null){
+		echo $id; die;
+		
+		$this->Message->id = $id;
+		if (!$this->Message->exists()) {
+			throw new NotFoundException(__('Invalid message'));
+		}
+		$this->request->allowMethod('post', 'delete');
+		if ($this->Message->delete()) {
+			$this->Session->setFlash(__('The message has been deleted.'));
+		} else {
+			$this->Session->setFlash(__('The message could not be deleted. Please, try again.'));
+		}
+		return $this->redirect(array('action' => 'index'));
+		
+	}
+		}
+

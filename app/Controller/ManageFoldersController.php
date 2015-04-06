@@ -58,10 +58,10 @@ class ManageFoldersController extends AppController {
 		$this->ManageFolder->saveField('Status', $status);
 
 
-		$this->Session->setFlash('Folder deleted', "success");
+		$this->Session->setFlash('Folder Activated', "success");
 		$this->redirect(array('action' => 'manage'));
 
-		$this->Session->setFlash('Folder was not deleted', "error");
+		$this->Session->setFlash('Folder was not Activated', "error");
 		$this->redirect(array('action' => 'manage'));
 	}
 
@@ -79,10 +79,10 @@ class ManageFoldersController extends AppController {
 		$this->ManageFolder->id = $id;
 		$this->ManageFolder->saveField('Status', $status);
 		if ($this->ManageFolder->saveField('Status', $status)) {
-			$this->Session->setFlash('Folder deleted', "success");
+			$this->Session->setFlash('Folder Deactivated', "success");
 			$this->redirect(array('action' => 'manage'));
 		}
-		$this->Session->setFlash('Folder was not deleted', "error");
+		$this->Session->setFlash('Folder was not Deactivated', "error");
 		$this->redirect(array('action' => 'manage'));
 	}
 

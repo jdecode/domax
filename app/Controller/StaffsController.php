@@ -67,6 +67,10 @@ class StaffsController extends AppController {
 
 		$this->Paginator->settings = $this->paginate;
 
+		$this->Paginator->settings = array(
+			'limit' => 5
+		);
+
 		$this->set('staffs', $this->paginate());
 		$this->Department = new Department();
 		$dept = $this->Department->find('list', array('fields' => array('name')));

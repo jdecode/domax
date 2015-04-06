@@ -1,5 +1,5 @@
-<?php
-//pr($messages); //die;
+	<?php
+//pr($messages); die;
 ?>
 <div class="col-md-12">
 	<div class="content-panel">
@@ -27,14 +27,14 @@
 				<?php echo $this->Form->create("Upload", array("url" => array("controller" => "uploads", "action" => "index"), "type" => "get")) ?>
 				<tr>
 
-					<th><?php echo $this->Paginator->sort('id', '#ID'); ?></th>
+					<th><?php echo $this->Paginator->sort('id', 'Sr.No'); ?></th>
 					<th><?php echo $this->Paginator->sort('user_id', 'Client'); ?></th>
 					<th><?php echo $this->Paginator->sort('filename'); ?></th>
 					<th><?php echo $this->Paginator->sort('upload_by'); ?></th>
 					<th><?php echo $this->Paginator->sort('created'); ?></th>
 					<th class="actions"><?php echo __('Actions'); ?></th>
 				</tr>
-				<tr>
+			<!--	<tr>
 					<td>&nbsp;</td>
 					<td><?php echo $this->Form->input('client', array('label' => false, "class" => "form-control input-sm")); ?></td>
 					<td><?php echo $this->Form->input('file_name', array('label' => false, "class" => "form-control input-sm")); ?></td>
@@ -43,33 +43,45 @@
 					<td>&nbsp;</td>
 					<td>&nbsp;</td>
 					<td><?php echo $this->Form->input("Filter", array("type" => "submit", "label" => false, "class" => "btn btn-sm btn-theme")); ?></td>
-				</tr>
+				</tr>-->
 				<?php echo $this->Form->end(); ?>
 			</thead>
 			<tbody>
 
 				<?php
 				if (!empty($messages)) {
+					if(isset($this->params->paging["Message"]["page"])){
+					$i=(10*$this->params->paging["Message"]["page"])-9;	
+					}else{
+					$i=1;	
+					}
 					foreach ($messages as $message):
 						?>
 						<tr>
 
-							<td><?php echo h($message['Message']['id']); ?>&nbsp;</td>
+							<td><?php echo h($i); ?>&nbsp;</td>
 							<td>
-								<?php echo $this->Html->link($message['Receiver']['username'], array('controller' => 'users', 'action' => 'view', $message['User']['id'])); ?>
+								<?php //echo $this->Html->link($message['Receiver']['username'], array('controller' => 'users', 'action' => 'view', $message['User']['id'])); ?>
+								<?php echo $this->Html->link($message['Receiver']['username'], array('controller' => 'users', 'action' => 'view', $message['Receiver']['id'])); ?>
 							</td>
-							<td><?php echo $this->Html->link($message['Document']['name'], '/app/webroot/files/uploads/' . $message['Document']['filename']); ?>&nbsp;</td>
-							<td>&nbsp;<?php //echo $this->Html->link($users[$message['InboxUpload']['sent_from']], array('controller' => 'users', 'action' => 'view', $message['SentUpload']['sent_from']));  ?>&nbsp;</td>
+							<td><?php echo $this->Html->link('<span class="btn btn-primary">Download</span>', '/app/webroot/files/uploads/' . $message['Document']['filename'], array('escape' => false, 'target' => '_blank')); ?>&nbsp;</td>
+							
+						<!--	<td><?php echo $this->Html->link($message['Document']['name'], '/app/webroot/files/uploads/' . $message['Document']['filename']); ?>&nbsp;</td>-->
+							<td>&nbsp;<?php echo $this->Html->link($message['User']['username'], array('controller' => 'users', 'action' => 'view', $message['User']['id']));  ?>&nbsp;</td>
 							<td><?php echo date('F d, Y H:i', $message['Message']['created']); ?>&nbsp;</td>
 							<td class="actions">
 								<?php echo $this->Html->link('<button class="btn btn-success btn-xs"><i class="glyphicon glyphicon-eye-open"></i></button>', array('action' => 'view', $message['Message']['id']), array('escape' => false, 'title' => "View")); ?>
-								<?php echo $this->Html->link('<button class="btn btn-primary btn-xs"><i class="fa fa-pencil"></i></button>', array('action' => 'edit', $message['User']['id']), array('escape' => false, 'title' => "Edit")); ?>
+								
+								<?php //echo $this->Html->link('<button class="btn btn-success btn-xs"><i class="glyphicon glyphicon-eye-open"></i></button>', array('action' => 'view', $s_data['Upload']['id']), array('escape' => false,'title'=>"View")); ?>
+								
+								<?php //echo $this->Html->link('<button class="btn btn-primary btn-xs"><i class="fa fa-pencil"></i></button>', array('action' => 'edit', $message['User']['id']), array('escape' => false, 'title' => "Edit")); ?>
 								<?php //if ($_SESSION['Auth']['User']['group_id'] == '1') { ?>	
-								<?php echo $this->Form->postLink('<button class="btn btn-danger btn-xs"><i class="fa fa-trash-o "></i></button>', array('action' => 'delete', $message['User']['id']), array('escape' => false, 'title' => "Delete"), __('Are you sure you want to delete # %s?', $message['User']['id'])); ?>
+								<?php echo $this->Form->postLink('<button class="btn btn-danger btn-xs"><i class="fa fa-trash-o "></i></button>', array('action' => 'delete', $message['Message']['id']), array('escape' => false, 'title' => "Delete"), __('Are you sure you want to delete # %s?', $message['User']['id'])); ?>
 								<?php //} ?>
 							</td>
 						</tr>
 					<?php
+					$i++;
 					endforeach;
 				}else {
 					?>
