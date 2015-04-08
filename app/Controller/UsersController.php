@@ -362,7 +362,7 @@ class UsersController extends AppController {
 	public function admin_logout() {
 		$this->Session->delete('admin');
 		$this->Session->setFlash('You are now logged out.', 'flash_close', array('class' => 'alert alert-success'));
-		$this->redirect('/admin/login');
+		$this->redirect('/login');
 	}
 
 	/**
@@ -373,7 +373,7 @@ class UsersController extends AppController {
 	public function client_logout() {
 		$this->Session->delete('client');
 		$this->Session->setFlash('You are now logged out.', 'flash_close', array('class' => 'alert alert-success'));
-		$this->redirect('/client');
+		$this->redirect('/login');
 	}
 
 	public function admin_changepassword() {
