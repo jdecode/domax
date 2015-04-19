@@ -41,6 +41,8 @@ class UsersController extends AppController {
 				'client_logout',
 			),
 		);
+                //pr($this->request->data); die;
+                //pr($this->params); die;
 		$this->_deny_url($this->_deny);
 	}
 

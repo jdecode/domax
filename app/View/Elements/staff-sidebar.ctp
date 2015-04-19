@@ -14,12 +14,13 @@ $rep_class = 'btn btn-info white bold s24 centered';
 </ul>
 <ul class="sidebar-menu folders">
 	<li><?php echo $this->Html->link(__('Received ('.$_Inbox.')'), array('controller' => 'uploads', 'action' => 'inbox')); ?> </li>
-	<li><?php echo $this->Html->link(__('Uploaded ('.$_Draft.')'), array('controller' => 'uploads', 'action' => 'draft')); ?> </li>
+	<li><?php echo $this->Html->link(__('Uploaded by Scan ('.$_Draft.')'), array('controller' => 'uploads', 'action' => 'draft')); ?> </li>
 	<li><?php echo $this->Html->link(__('Sent ('.$_Sent.')'), array('controller' => 'uploads', 'action' => 'sent')); ?> </li>
+	<li><?php echo $this->Html->link(__('Shared ('.$_Sent.')'), array('controller' => 'uploads', 'action' => 'sent')); ?> </li>
 	<hr>
 	<?php
-	
-	
+        
+        
 	if(isset($_folders) && is_array($_folders) && count($_folders)) {
 		foreach($_folders as $_folder) {
 		?>
